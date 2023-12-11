@@ -18,20 +18,51 @@ app.post("/api/v1/signup", async (req, res) => {
   const foundUser = await User.findOne({ email: email, status: "active" });
   console.log(foundUser);
   if (foundUser !== null) {
-    res.status(400).json("Email is in use!");
-    return;
+    return res.status(400).json("Email is in use!");
   }
 
+  const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = new User();
   newUser.name = name;
   newUser.username = username;
   newUser.email = email;
-  newUser.password = password;
+  newUser.password = hashedPassword;
   newUser.status = "active";
 
   await newUser.save();
 
   res.status(200).json("Added!");
+});
+
+app.post("/api/v1/signin", async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const foundUser = await User.findOne({ email: email, password: hashedPassword, status: "active" });
+  if (foundUser === null) {
+    return res.status(400).json("Wrong credentials");
+  }
+  const token = jwt.sign(email, SECRET_KEY, { expiresIn: "1d" });
+  res.json(token);
+});
+
+app.post("/api/v1/newpassword", async (req, res) => {
+  const { email, password, newPassword } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+  const foundUser = await User.findOne({ email: email, status: "active" });
+  if (foundUser.password !== hashedPassword) {
+    return res.status(400).json("Wrong password");
+  }
+  await foundUser.update({ password: hashedNewPassword });
+  res.status(200).json("Password changed successfully!");
+});
+
+app.post("/api/v1/deactivation", async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const foundUser = await User.findOne({ email: email, password: hashedPassword, status: "active" });
+  await foundUser.update({ status: "deactivated" });
+  res.status(200).json("Password changed successfully!");
 });
 
 app.listen(3000, () => {
