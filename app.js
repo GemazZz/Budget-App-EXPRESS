@@ -15,6 +15,7 @@ app.use(cors(corsOpt));
 
 const User = require("./models/users.models");
 
+//User
 app.post("/api/v1/signup", async (req, res) => {
   const { name, username, email, password } = req.body;
   const foundUser = await User.findOne({ email: email, status: "active" });
@@ -77,3 +78,5 @@ app.post("/api/v1/deactivation", authorization, async (req, res) => {
 app.listen(3000, () => {
   console.log("Running");
 });
+
+//Expense
