@@ -16,8 +16,7 @@ const User = require("./models/users.models");
 app.post("/api/v1/signup", async (req, res) => {
   const { name, username, email, password } = req.body;
   const foundUser = await User.findOne({ email: email, status: "active" });
-  console.log(foundUser);
-  if (foundUser !== null) {
+  if (foundUser) {
     return res.status(400).json("Email is in use!");
   }
 
@@ -38,7 +37,7 @@ app.post("/api/v1/signin", async (req, res) => {
   const { email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   const foundUser = await User.findOne({ email: email, password: hashedPassword, status: "active" });
-  if (foundUser === null) {
+  if (foundUser) {
     return res.status(400).json("Wrong credentials");
   }
   const token = jwt.sign(email, SECRET_KEY, { expiresIn: "1d" });
