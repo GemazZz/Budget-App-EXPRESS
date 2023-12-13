@@ -19,7 +19,7 @@ app.post("/api/v1/signup", async (req, res) => {
   const { name, username, email, password } = req.body;
   const foundUser = await User.findOne({ email: email, status: "active" });
   console.log(foundUser);
-  if (foundUser !== null) {
+  if (foundUser) {
     return res.status(400).json("Email is in use!");
   }
 
