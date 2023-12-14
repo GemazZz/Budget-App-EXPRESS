@@ -54,6 +54,12 @@ app.post("/api/v1/signin", async (req, res) => {
   return res.status(200).json({ token });
 });
 
+app.get("/api/v1/user", authorization, async (req, res) => {
+  const { userId } = req.user;
+  const foundUser = await User.findOne({ _id: userId, status: "active" });
+  return res.status(200).json({ foundUser });
+});
+
 app.post("/api/v1/newpassword", authorization, async (req, res) => {
   const { userId } = req.user;
   const { password, newPassword } = req.body;
@@ -68,13 +74,8 @@ app.post("/api/v1/newpassword", authorization, async (req, res) => {
 });
 
 app.put("/api/v1/deactivation", authorization, async (req, res) => {
-  const { password } = req.body;
   const { userId } = req.user;
   const foundUser = await User.findOne({ _id: userId, status: "active" });
-  const isPasswordCorrect = await bcrypt.compare(password, foundUser.password);
-  if (!isPasswordCorrect) {
-    return res.status(400).json({ err: "Wrong password" });
-  }
   await foundUser.updateOne({ status: "deactivated", deactivated_at: new Date() });
   return res.status(200).json({ message: "account deactivated successfully!" });
 });
@@ -109,7 +110,6 @@ app.delete("/api/v1/delexpense", authorization, async (req, res) => {
 
 app.put("/api/v1/favexpense", authorization, async (req, res) => {
   const { expenseId } = req.body;
-  console.log(req.body);
   const foundExpense = await Expense.findOne({ _id: expenseId });
   if (!foundExpense) {
     return res.status(400).json({ err: "expense does not Exist" });
@@ -130,7 +130,13 @@ app.get("/api/v1/expenses", authorization, async (req, res) => {
   return res.status(200).json(foundExpenses);
 });
 
-app.post("/api/v1/:expenseId", authorization, async (req, res) => {
+app.get("/api/v1/:expenseId", authorization, async (req, res) => {
+  const { expenseId } = req.params;
+  const foundExpense = await Expense.findOne({ _id: expenseId });
+
+  return res.status(200).json({ foundExpense });
+});
+app.put("/api/v1/:expenseId", authorization, async (req, res) => {
   const { expenseId } = req.params;
   const changeObj = req.body;
   const foundExpense = await Expense.findOne({ _id: expenseId });
