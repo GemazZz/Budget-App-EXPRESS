@@ -145,6 +145,7 @@ app.put("/api/v1/:expenseId", authorization, async (req, res) => {
   return res.status(200).json({ message: "Expense Changed!" });
 });
 
-app.listen(3000, () => {
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
   console.log("Server Started Successfully, Waiting for MongoDB...");
 });
