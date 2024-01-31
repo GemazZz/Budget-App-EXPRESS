@@ -8,7 +8,7 @@ const authorization = require("./middlewares");
 
 const cors = require("cors");
 const corsOpt = {
-  origin: ["https://budget-react-express-app-by-gemazzz.netlify.app", "192.168.1.15"],
+  origin: "https://budget-app-gemazzz.netlify.app",
 };
 app.use(cors(corsOpt));
 app.use(express.json());
